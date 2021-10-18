@@ -19,7 +19,7 @@ namespace Reflection
 			// 받은 쿼리문을 실행하여 데이터 추출
 			DataTable dt = ExecuteAdapter(query);
 			if(dt != null)
-			{
+            {
 				for (int row = 0; row < dt.Rows.Count; row++)
 				{
 					// 전달받은 객체의 타입으로 생성.
@@ -45,7 +45,7 @@ namespace Reflection
 					// 배열에 추가.
 					_list.Add((T)_obj);
 				}
-			}
+            }
 			return _list;
 		}
 
@@ -72,8 +72,7 @@ namespace Reflection
 						if (infoArr[i].Name.ToUpper().Substring(1).Split('>')[0] == dt.Columns[col].ColumnName.ToUpper())
 						{
 							// 발견한 데이터를 입력.
-							string value = dt.Rows[0][col].ToString();
-							
+							object value = dt.Rows[0][col];
 							FieldInfo info = infoArr[i];
 							ConvertObjType(info, obj, value);
 							break;
@@ -85,7 +84,7 @@ namespace Reflection
 		}
 
 		public static int insert<T>(T obj, string query)
-		{
+        {
 			string _query = string.Empty;
 			_query = ConvertText(obj, query);			
 			return ExecuteScalar(_query);
@@ -152,20 +151,20 @@ namespace Reflection
 			}
 			else if (info.FieldType == typeof(System.Double))
 			{
-				info.SetValue(obj, Convert.ToString(value));
+				info.SetValue(obj, Convert.ToDouble(value));
 			}
 			else if (info.FieldType == typeof(System.String))
 			{
 				info.SetValue(obj, Convert.ToString(value));
 			}
-			else
+			else if (info.FieldType == typeof(System.DateTime))
 			{
-				info.SetValue(obj, Convert.ToString(value));
+				info.SetValue(obj, Convert.ToDateTime(value));
 			}
 		}
 
 		private static string ConvertText<T>(T obj, string query)
-		{
+        {
 			while (true)
 			{
 				// 템플릿 문자열 체크
