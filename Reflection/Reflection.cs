@@ -86,7 +86,7 @@ namespace Reflection
 		public static int insert<T>(T obj, string query)
         {
 			string _query = string.Empty;
-			_query = ConvertText(obj, query);			
+			_query = ConvertText(obj, query);
 			return ExecuteScalar(_query);
 		}
 
@@ -147,11 +147,15 @@ namespace Reflection
 			// 해당하는 형태의 변수로 변환해서 삽입.
 			if (info.FieldType == typeof(System.Int32))
 			{
-				info.SetValue(obj, Convert.ToInt32(value));
+				int result;
+				Int32.TryParse(value.ToString(), out result);
+				info.SetValue(obj, result);
 			}
 			else if (info.FieldType == typeof(System.Double))
 			{
-				info.SetValue(obj, Convert.ToDouble(value));
+				double result;
+				double.TryParse(value.ToString(), out result);
+				info.SetValue(obj, result);
 			}
 			else if (info.FieldType == typeof(System.String))
 			{
@@ -188,7 +192,16 @@ namespace Reflection
 						{
 							if (infoArr[i].Name.ToUpper().Substring(1).Split('>')[0] == getText.ToUpper().Substring(2, getText.Length - 3))
 							{
-								string v = infoArr[i].GetValue(obj).ToString();
+								string v = "";
+
+								if (infoArr[i].FieldType == typeof(System.DateTime))
+                                {
+									v = ((DateTime)infoArr[i].GetValue(obj)).ToString("yyyy-MM-dd HH:mm:ss");
+								} else
+                                {
+									v = infoArr[i].GetValue(obj).ToString(); ;
+								}
+									
 								query = $"{f}'{v}'{b}";
 								break;
 							}
