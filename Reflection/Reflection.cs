@@ -94,7 +94,7 @@ namespace Reflection
 		{
 			string _query = string.Empty;
 			foreach (T obj in list)
-            {
+			{
 				_query += ConvertText(obj, query);
 				if (_query.Substring(_query.Length - 1) != ";") _query += ";";
 			}
@@ -172,11 +172,11 @@ namespace Reflection
 			while (true)
 			{
 				// 템플릿 문자열 체크
-				if (query.IndexOf("${") == -1) break;
+				if (query.IndexOf("$[") == -1) break;
 				else
 				{
-					int startNumber = query.IndexOf("${");
-					int endNumber = query.IndexOf("}", startNumber) + 1;
+					int startNumber = query.IndexOf("$[");
+					int endNumber = query.IndexOf("]", startNumber) + 1;
 					string getText = query.Substring(startNumber, endNumber - startNumber);
 
 					// 전달받은 객체의 변수 목록 확인
@@ -195,14 +195,22 @@ namespace Reflection
 								string v = "";
 
 								if (infoArr[i].FieldType == typeof(System.DateTime))
-                                {
+								{
 									v = ((DateTime)infoArr[i].GetValue(obj)).ToString("yyyy-MM-dd HH:mm:ss");
-								} else
-                                {
+								} 
+								else
+								{
 									v = infoArr[i].GetValue(obj).ToString(); ;
 								}
-									
-								query = $"{f}'{v}'{b}";
+
+								if (infoArr[i].FieldType == typeof(System.String))
+								{
+									query = $"{f}N'{v}'{b}";
+								}
+								else
+								{
+									query = $"{f}N'{v}'{b}";
+								}
 								break;
 							}
 						}
@@ -221,7 +229,7 @@ namespace Reflection
 		public class Conn
 		{
 			public string ip { get; set; }
-			public string port { get; set; }
+			public string port { get; set; }		
 			public string database { get; set; }
 			public string id { get; set; }
 			public string pw { get; set; }
@@ -234,7 +242,6 @@ namespace Reflection
 		{
 			string connStr = string.Format("SERVER = {0}; DATABASE = {2}; UID = {3}; PASSWORD = {4}", conn.ip, conn.port, conn.database, conn.id, conn.pw);
 			connection = new SqlConnection(connStr);
-
 		}
 
 		private static int ExecuteScalar(string query)
@@ -243,7 +250,7 @@ namespace Reflection
 			{
 				if (connection == null) throw new Exception("데이터 베이스가 연결되지 않았습니다");
 
-				using (SqlCommand command = new SqlCommand(string.Format("{0}; SELECT CAST(SCOPE_IDENTITY() AS INT)",query).ToUpper(), connection))
+				using (SqlCommand command = new SqlCommand($"{query}; SELECT CAST(SCOPE_IDENTITY() AS INT)".ToUpper(), query))
 				{
 					connection.Open();
 					int seqID = (Int32)command.ExecuteScalar();
